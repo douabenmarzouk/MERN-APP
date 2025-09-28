@@ -5,14 +5,11 @@ import {
   createNodes,
   updateNode,
   deleteNodes,
-} from "../controllers/notesController.js";
-
+} from "../controllers/notescontroller.js";
 const router = express.Router();
-
 router.get("/", getAllNodes);
 router.get("/:id", getNodeById);
 router.post("/", createNodes);
 router.put("/:id", updateNode);
 router.delete("/:id", deleteNodes);
-
 export default router;
