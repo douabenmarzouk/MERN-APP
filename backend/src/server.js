@@ -1,28 +1,53 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv"; 
-import notesRoutes from "./routes/nodesRoutes.js";
+import dotenv from "dotenv";
+import path from "path";
+
+import notesRoutes from "./routes/nodesRoutes.js"; // Vérifie le nom exact du fichier
 import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 
 dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5001;
+const __dirname = path.resolve();
 
-// Connexion à MongoDB
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server started at port: ${PORT}`);
-  });
-});
-// Middleware
-app.use(cors({
-    origin: "http://localhost:5173"  // ✅ corrigé
-}));
+// Middlewares
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+    })
+  );
+}
+
 app.use(express.json());
 app.use(rateLimiter);
 
-
-// Routes
+// Routes API
 app.use("/api/notes", notesRoutes);
 
+// Servir frontend React en production
+if (process.env.NODE_ENV === "production") {
+  const frontendDist = path.join(__dirname, "../frontend/dist");
+
+  // Servir fichiers statiques (JS, CSS, images)
+  app.use(express.static(frontendDist));
+
+  // Middleware pour toutes les autres routes qui ne sont pas /api
+  app.use((req, res, next) => {
+    if (!req.path.startsWith("/api")) {
+      res.sendFile(path.join(frontendDist, "index.html"));
+    } else {
+      next();
+    }
+  });
+}
+
+// Connexion à MongoDB et démarrage du serveur
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("Server started on PORT:", PORT);
+  });
+});
