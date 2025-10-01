@@ -9,12 +9,9 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    environment:
-      - PORT=5000
-      - MONGO_URI=mongodb+srv://benmarzoukdoua_db_user:amenrawen@cluster1.y6ngtzu.mongodb.net/notes_db?retryWrites=true&w=majority&appName=Cluster1
-      - UPSTASH_REDIS_REST_URL=https://outgoing-longhorn-13238.upstash.io
-      - UPSTASH_REDIS_REST_TOKEN=ATO2AAIncDJiOTNlY2Y2OTFjM2I0ZWE2YjVmNDRkYmFjOGIyODNmOXAyMTMyMzg
-      - NODE_ENV=development
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
@@ -23,3 +20,7 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
