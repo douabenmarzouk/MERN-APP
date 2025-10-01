@@ -8,12 +8,18 @@ import toast from "react-hot-toast";
 const HomePage = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true); // commence à true
+  const [loading, setLoading] = useState(true);
+
+  // Choisir l'URL selon l'environnement
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://mern-app-14-b76d.onrender.com";
 
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/notes");
+        const res = await axios.get(`${API_URL}/api/notes`);
         console.log(res.data);
         setNotes(res.data);
         setIsRateLimited(false);
@@ -25,12 +31,12 @@ const HomePage = () => {
           toast.error("Failed to load notes");
         }
       } finally {
-        setLoading(false); // arrêter le loading
+        setLoading(false);
       }
     };
 
     fetchNotes();
-  }, []);
+  }, [API_URL]);
 
   return (
     <div className="min-h-screen">
