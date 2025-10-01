@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 
-import notesRoutes from "./routes/nodesRoutes.js"; // Vérifie bien le nom du fichier
+import notesRoutes from "./routes/nodesRoutes.js";
 import { connectDB } from "./config/db.js";
 // import rateLimiter from "./middleware/rateLimiter.js"; // Désactivé temporairement pour test
 
@@ -18,14 +18,17 @@ const __dirname = path.resolve();
 // =======================
 app.use(express.json());
 
-// CORS pour le frontend en dev
-if (process.env.NODE_ENV !== "production") {
-  app.use(
-    cors({
-      origin: "http://localhost:3000", // <-- changer pour ton frontend
-    })
-  );
-}
+// ⚡ CORS configuré pour dev ET prod
+const FRONTEND_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.FRONTEND_URL // Ex: https://mern-app-12-agf3.onrender.com
+    : "http://localhost:3000";
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+  })
+);
 
 // Rate limiter désactivé temporairement pour test
 // app.use(rateLimiter);
